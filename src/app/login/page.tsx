@@ -24,8 +24,10 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else if (data.user) {
-      // get role from metadata
-      const role = data.user.user_metadata?.role;
+      // Get authoritative role directly from the database mapping (not just metadata)
+      const { data: dbUser } = await supabase.from('users').select('role').eq('id', data.user.id).single();
+      const role = dbUser?.role || data.user.user_metadata?.role;
+      
       if (role === "admin") router.push("/admin");
       else if (role === "instructor") router.push("/instructor");
       else router.push("/student");
