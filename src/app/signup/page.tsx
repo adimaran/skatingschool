@@ -9,7 +9,6 @@ import styles from "./signup.module.css";
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("student");
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -20,18 +19,14 @@ export default function SignUp() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { role },
-      },
+      // Removed custom role injection per feedback. Backend DB logic handles default permission assignments.
     });
 
     if (error) {
       setError(error.message);
     } else {
-      // Redirect based on role
-      if (role === "admin") router.push("/admin");
-      else if (role === "instructor") router.push("/instructor");
-      else router.push("/student");
+      // Default to student/parent routing, admin promotions happen through database
+      router.push("/student");
     }
   };
 
@@ -70,18 +65,8 @@ export default function SignUp() {
             />
           </div>
           
-          <div className={styles.inputGroup}>
-            <label htmlFor="role">I am a...</label>
-            <select 
-              id="role" 
-              value={role} 
-              onChange={(e) => setRole(e.target.value)} 
-              className={styles.input}
-            >
-              <option value="student">Student/Parent</option>
-              <option value="instructor">Instructor</option>
-              <option value="admin">Admin</option>
-            </select>
+          <div className={styles.inputGroup} style={{marginBottom: "1rem"}}>
+            {/* Role dropdown removed. All accounts begin as Parents/Students until promoted by an Admin. */}
           </div>
           
           <button type="submit" className={styles.button}>Create Account</button>
